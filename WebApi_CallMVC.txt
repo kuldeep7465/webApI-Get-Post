@@ -1,0 +1,87 @@
+Spet1:-
+ Uri baseAddress = new Uri("http://localhost:52690/");
+
+        HttpClient Client;
+
+
+        public HomeController()
+        {
+
+            Client = new HttpClient();
+
+            Client.BaseAddress = baseAddress;
+
+        }
+========================================
+
+            HttpResponseMessage emp = Client.GetAsync(Client.BaseAddress + "Emp/GetEmployee").Result;
+
+            if (emp.IsSuccessStatusCode)
+            {
+
+                string data = emp.Content.ReadAsStringAsync().Result;
+
+
+                empdetails = JsonConvert.DeserializeObject<List<tbl_Employee>>(data);
+
+            }
+========================================================================================
+ string data = JsonConvert.SerializeObject(tblEmp);
+
+            StringContent content = new StringContent(data, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage res = Client.PostAsync(Client.BaseAddress + "Emp/SaveEmployee", content).Result;
+
+            if(res.IsSuccessStatusCode)
+            {
+
+
+            }
+========================================================================================================
+Web Api Method:-
+[HttpGet]
+        [Route("Emp/GetEmployee")]
+        public List<tbl_Employee> GetEmp()
+        {
+
+            List<EmployeeModel> ListEmp = new List<EmployeeModel>();
+
+
+            NewBatchMVC6PMEntities objlist = new NewBatchMVC6PMEntities();
+
+            var res = objlist.tbl_Employee.ToList();
+
+            return res;
+        }
+
+
+        [HttpPost]
+        [Route("Emp/SaveEmployee")]
+        public HttpResponseMessage SaveEmp(tbl_Employee Obj)
+        {
+
+            NewBatchMVC6PMEntities Dbcon = new NewBatchMVC6PMEntities();
+
+            tbl_Employee tblEmp = new tbl_Employee();
+
+            if (Obj.Id == 0)
+            {
+                Dbcon.tbl_Employee.Add(Obj);
+                Dbcon.SaveChanges();
+
+            }
+
+            else
+            {
+                Dbcon.Entry(Obj).State = System.Data.Entity.EntityState.Modified;
+                Dbcon.SaveChanges();
+
+            }
+
+            HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.OK);
+
+            return res;
+
+
+        }
+=============================================================================================
